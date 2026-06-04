@@ -15,13 +15,25 @@ import org.testng.annotations.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class AmazonMobileExtractionTest extends BaseTest {
 
     @Test(description = "Read search keywords, search Amazon mobile phones, and export product data")
     public void extractMobileProductData() {
-        String inputFile = FrameworkConfig.getOrDefault("input.file", FrameworkConstants.DEFAULT_INPUT_FILE);
-        String outputFile = FrameworkConfig.getOrDefault("output.file", FrameworkConstants.DEFAULT_OUTPUT_FILE);
+        // Prefer XLSX input if configured and file exists; otherwise fall back to CSV
+        String configuredXlsx = FrameworkConfig.get("input.xlsx.file");
+        String configuredCsv = FrameworkConfig.getOrDefault("input.file", FrameworkConstants.DEFAULT_INPUT_FILE);
+        String inputFile;
+        if (configuredXlsx != null && !configuredXlsx.isBlank() && Files.exists(Path.of(configuredXlsx))) {
+            inputFile = configuredXlsx;
+        } else {
+            inputFile = configuredCsv;
+        }
+
+        // Prefer XLSX output if configured, else default CSV output
+        String outputFile = FrameworkConfig.getOrDefault("output.xlsx.file", FrameworkConfig.getOrDefault("output.file", FrameworkConstants.DEFAULT_OUTPUT_FILE));
         int maxProducts = FrameworkConfig.getInt("max.products", 10);
 
         List<String> keywords = InputDataReader.readSearchKeywords(inputFile);
