@@ -79,6 +79,24 @@ public class DataFileUtilityTest {
     }
 
     @Test
+    public void shouldReadKeywordsFromCsvSuccessfully() throws Exception {
+        Path tempFile = Files.createTempFile("keywords", ".csv");
+        Files.writeString(tempFile, "SearchKeyword\nphone a\nphone b\n");
+
+        List<String> keywords = InputDataReader.readSearchKeywords(tempFile.toString());
+        Assert.assertEquals(keywords.size(), 2);
+        Assert.assertEquals(keywords.get(0), "phone a");
+    }
+
+    @Test
+    public void shouldThrowWhenInputXlsxMissing() {
+        IllegalArgumentException exception = Assert.expectThrows(IllegalArgumentException.class,
+                () -> InputDataReader.readSearchKeywords("src/test/resources/testdata/input/missing-keywords.xlsx"));
+
+        Assert.assertTrue(exception.getMessage().contains("does not exist") || exception.getMessage().contains("Input file does not exist"));
+    }
+
+    @Test
     public void shouldThrowWhenOutputExtensionIsUnsupported() {
         IllegalArgumentException exception = Assert.expectThrows(IllegalArgumentException.class,
                 () -> OutputDataWriter.writeProducts("output/amazon-mobile-data.txt", List.of()));
