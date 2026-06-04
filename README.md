@@ -21,10 +21,13 @@ Java Selenium-TestNG framework to read search keywords from CSV/XLSX, search Ama
 
 ## Run
 ```bash
-mvn clean test
+./mvnw clean test
 ```
 
-If Maven is not installed on the machine, add Maven to `PATH` or commit a Maven Wrapper before execution.
+On Windows:
+```powershell
+.\mvnw.cmd clean test
+```
 
 ## Workflow Coverage
 1. Reads search keywords from CSV or XLSX.
