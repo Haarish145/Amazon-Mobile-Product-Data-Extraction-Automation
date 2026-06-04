@@ -115,5 +115,82 @@ public class AmazonSearchResultsPageTest {
             Assert.assertFalse(products.isEmpty());
         }
     }
+
+    @Test
+    public void shouldHandleMissingPriceAndSetNA() throws Exception {
+        when(mockDriver.getTitle()).thenReturn("Amazon.in");
+        when(mockDriver.getPageSource()).thenReturn("normal page");
+        when(mockDriver.findElements(any(By.class))).thenReturn(List.of());
+
+        WebElement mockCard = mock(WebElement.class);
+        WebElement nameEl = mock(WebElement.class);
+        WebElement ratingEl = mock(WebElement.class);
+        WebElement reviewsEl = mock(WebElement.class);
+
+        when(nameEl.getText()).thenReturn("Sample Phone");
+        when(ratingEl.getText()).thenReturn("4.0 out of 5 stars");
+        when(reviewsEl.getText()).thenReturn("10 reviews");
+
+        when(mockCard.findElement(any(By.class))).thenAnswer(invocation -> {
+            By by = invocation.getArgument(0);
+            String locator = by.toString();
+            if (locator.contains("h2") || locator.contains("h2 span")) return nameEl;
+            if (locator.contains("a-price-whole") || locator.contains("a-price-fraction")) throw new NoSuchElementException("price missing");
+            if (locator.contains("a-icon-alt")) return ratingEl;
+            if (locator.toString().contains("ratings") || locator.contains("a-row.a-size-small")) return reviewsEl;
+            throw new NoSuchElementException("not found: " + locator);
+        });
+
+        List<WebElement> fallbackList = List.of(mockCard);
+        try (MockedStatic<WaitUtils> mocked = Mockito.mockStatic(WaitUtils.class)) {
+            mocked.when(() -> WaitUtils.waitForAllVisible(any(By.class), any(Duration.class)))
+                    .thenThrow(new RuntimeException("primary failed")).thenReturn(fallbackList);
+
+            AmazonSearchResultsPage page = new AmazonSearchResultsPage(mockDriver);
+            var products = page.extractProducts("mobile", 5);
+            Assert.assertFalse(products.isEmpty());
+            Assert.assertEquals(products.get(0).getPrice(), "N/A");
+        }
+    }
+
+    @Test
+    public void shouldHandleMissingRatingReviewsAndPrimeBadge() throws Exception {
+        when(mockDriver.getTitle()).thenReturn("Amazon.in");
+        when(mockDriver.getPageSource()).thenReturn("normal page");
+        when(mockDriver.findElements(any(By.class))).thenReturn(List.of());
+
+        WebElement mockCard = mock(WebElement.class);
+        WebElement nameEl = mock(WebElement.class);
+        WebElement wholeEl = mock(WebElement.class);
+        WebElement fractionEl = mock(WebElement.class);
+
+        when(nameEl.getText()).thenReturn("Sample Phone");
+        when(wholeEl.getText()).thenReturn("15999");
+        when(fractionEl.getText()).thenReturn("00");
+
+        when(mockCard.findElement(any(By.class))).thenAnswer(invocation -> {
+            By by = invocation.getArgument(0);
+            String locator = by.toString();
+            if (locator.contains("h2") || locator.contains("h2 span")) return nameEl;
+            if (locator.contains("a-price-whole")) return wholeEl;
+            if (locator.contains("a-price-fraction")) return fractionEl;
+            if (locator.contains("a-icon-alt")) throw new NoSuchElementException("rating missing");
+            if (locator.toString().contains("ratings") || locator.contains("a-row.a-size-small")) throw new NoSuchElementException("reviews missing");
+            throw new NoSuchElementException("not found: " + locator);
+        });
+
+        List<WebElement> fallbackList = List.of(mockCard);
+        try (MockedStatic<WaitUtils> mocked = Mockito.mockStatic(WaitUtils.class)) {
+            mocked.when(() -> WaitUtils.waitForAllVisible(any(By.class), any(Duration.class)))
+                    .thenThrow(new RuntimeException("primary failed")).thenReturn(fallbackList);
+
+            AmazonSearchResultsPage page = new AmazonSearchResultsPage(mockDriver);
+            var products = page.extractProducts("mobile", 5);
+            Assert.assertFalse(products.isEmpty());
+            Assert.assertEquals(products.get(0).getRating(), "N/A");
+            Assert.assertEquals(products.get(0).getReviewsCount(), "N/A");
+            Assert.assertEquals(products.get(0).getPrimeBadge(), "No");
+        }
+    }
 }
 
