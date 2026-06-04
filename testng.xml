@@ -1,0 +1,11 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Amazon Mobile Data Extraction Suite">
+    <listeners>
+        <listener class-name="com.amazon.automation.listeners.TestListener"/>
+    </listeners>
+    <test name="Amazon Mobile Extraction Tests">
+        <classes>
+            <class name="com.amazon.automation.tests.AmazonMobileExtractionTest"/>
+        </classes>
+    </test>
+</suite>
