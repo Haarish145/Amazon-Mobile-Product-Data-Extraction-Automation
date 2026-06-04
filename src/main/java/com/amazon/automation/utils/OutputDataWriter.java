@@ -19,6 +19,12 @@ public final class OutputDataWriter {
 
     public static void writeProducts(String outputFilePath, List<ProductData> products) {
         try {
+            if (outputFilePath == null || outputFilePath.isBlank()) {
+                throw new IllegalArgumentException("Output file path must not be blank");
+            }
+            if (products == null) {
+                throw new IllegalArgumentException("Products list must not be null");
+            }
             Path outputPath = Path.of(outputFilePath);
             Path parent = outputPath.getParent();
             if (parent != null) {
@@ -33,6 +39,8 @@ public final class OutputDataWriter {
                 return;
             }
             throw new IllegalArgumentException("Unsupported output format: " + outputFilePath);
+        } catch (IllegalArgumentException exception) {
+            throw exception;
         } catch (Exception exception) {
             throw new IllegalStateException("Failed to write output file", exception);
         }

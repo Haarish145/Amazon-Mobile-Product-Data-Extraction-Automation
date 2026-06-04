@@ -5,6 +5,7 @@
     </listeners>
     <test name="Amazon Mobile Extraction Tests">
         <classes>
+            <class name="com.amazon.automation.utils.DataFileUtilityTest"/>
             <class name="com.amazon.automation.tests.AmazonMobileExtractionTest"/>
         </classes>
     </test>

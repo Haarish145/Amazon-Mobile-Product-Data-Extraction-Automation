@@ -23,6 +23,9 @@ public final class InputDataReader {
 
     public static List<String> readSearchKeywords(String inputFilePath) {
         try {
+            if (inputFilePath == null || inputFilePath.isBlank()) {
+                throw new IllegalArgumentException("Input file path must not be blank");
+            }
             Path path = Path.of(inputFilePath);
             if (!Files.exists(path)) {
                 throw new IllegalArgumentException("Input file does not exist: " + inputFilePath);
@@ -34,6 +37,8 @@ public final class InputDataReader {
                 return readFromExcel(path);
             }
             throw new IllegalArgumentException("Unsupported input format: " + inputFilePath);
+        } catch (IllegalArgumentException exception) {
+            throw exception;
         } catch (Exception exception) {
             throw new IllegalStateException("Failed to read input file", exception);
         }
