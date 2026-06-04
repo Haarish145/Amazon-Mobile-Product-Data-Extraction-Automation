@@ -39,7 +39,7 @@ public class AmazonMobileExtractionTest extends BaseTest {
             Assert.assertTrue(homePage.getTitle().toLowerCase().contains("amazon"), "Amazon page title validation failed");
 
             homePage.searchFor(keyword);
-            List<ProductData> products = resultsPage.extractProducts(maxProducts);
+            List<ProductData> products = resultsPage.extractProducts(keyword, maxProducts);
             logger.info("Extracted {} products for keyword: {}", products.size(), keyword);
             ExtentManager.getTest().info("Extracted " + products.size() + " products for keyword: " + keyword);
             allProducts.addAll(products);

@@ -29,7 +29,7 @@ public class AmazonSearchResultsPage {
         this.driver = driver;
     }
 
-    public List<ProductData> extractProducts(int maxProducts) {
+    public List<ProductData> extractProducts(String keyword, int maxProducts) {
         // Detect common CAPTCHA/robot blocks and capture a screenshot for diagnostics
         try {
             String pageTitle = driver.getTitle() == null ? "" : driver.getTitle();
@@ -37,7 +37,7 @@ public class AmazonSearchResultsPage {
             if (pageTitle.toLowerCase().contains("robot check")
                     || pageSource.contains("Enter the characters you see below")
                     || pageSource.contains("Type the characters you see in the image")) {
-                String screenshot = ScreenshotUtils.capture("captcha_blocked");
+                String screenshot = ScreenshotUtils.capture("captcha_blocked", keyword);
                 logger.error("CAPTCHA detected - screenshot saved at {}", screenshot);
                 throw new CaptchaDetectedException("Amazon CAPTCHA detected. Screenshot: " + screenshot);
             }
@@ -51,8 +51,8 @@ public class AmazonSearchResultsPage {
         try {
             boolean noResults = !driver.findElements(noResultsBanner).isEmpty() || !driver.findElements(noResultsText).isEmpty();
             if (noResults) {
-                String screenshot = ScreenshotUtils.capture("no_results");
-                logger.info("No results detected - screenshot saved at {}", screenshot);
+                String screenshot = ScreenshotUtils.capture("no_results", keyword);
+                logger.info("No results detected for keyword '{}' - screenshot saved at {}", keyword, screenshot);
                 return List.of();
             }
         } catch (Exception e) {
