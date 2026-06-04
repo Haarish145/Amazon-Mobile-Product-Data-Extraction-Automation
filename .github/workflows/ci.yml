@@ -28,6 +28,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Run XLSX IO test
-        run: mvn -B -DskipTests=false -Dtest=InputOutputExcelTest test
+      - name: Run unit tests
+        run: mvn -B test
 
